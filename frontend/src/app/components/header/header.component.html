@@ -1,0 +1,51 @@
+<header class="navbar">
+  <div class="brand">
+    <span class="brand-icon">🏭</span>
+    <div>
+      <span class="brand-title">QC Inspection Tracker</span>
+      <span class="brand-sub">Gujarat & Maharashtra Fabric Plants</span>
+    </div>
+  </div>
+
+  <nav *ngIf="currentUser" class="nav-links">
+    <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
+      📊 Summary Dashboard
+    </a>
+    <a routerLink="/inspections" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
+      🔍 View Inspections
+    </a>
+    <a *ngIf="canCreate" routerLink="/create" routerLinkActive="active" class="nav-item">
+      ➕ New Inspection
+    </a>
+    <a *ngIf="canUseSapWebhook" routerLink="/sap-mock" routerLinkActive="active" class="nav-item">
+      🔄 SAP Webhook
+    </a>
+    <a *ngIf="canManageUsers" routerLink="/users" routerLinkActive="active" class="nav-item">
+      👥 Users
+    </a>
+  </nav>
+
+  <!-- User Status & Logout -->
+  <div *ngIf="currentUser" class="user-menu">
+    <button class="profile-btn" (click)="openProfile()" title="Click to edit profile">
+      <div class="user-info">
+        <span class="user-name">👤 {{ currentUser.name || currentUser.username }}</span>
+        <span class="role-badge" [class.admin-badge]="currentUser.role === 'ADMIN'">
+          {{ currentUser.role }}
+        </span>
+      </div>
+      <span class="edit-badge">✏️ Edit</span>
+    </button>
+    <button class="logout-btn" (click)="logout()" title="Sign Out">
+      🚪 Logout
+    </button>
+  </div>
+</header>
+
+<!-- Profile Edit Modal -->
+<app-profile-modal
+  *ngIf="showProfileModal && currentUser"
+  [user]="currentUser"
+  (close)="closeProfile()"
+  (updated)="onProfileUpdated($event)"
+></app-profile-modal>

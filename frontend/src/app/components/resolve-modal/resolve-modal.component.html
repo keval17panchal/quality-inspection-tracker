@@ -1,0 +1,50 @@
+<div class="modal-backdrop" (click)="onClose()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>✅ Resolve Inspection #{{ inspection.id }}</h3>
+      <button type="button" class="close-btn" (click)="onClose()">&times;</button>
+    </div>
+
+    <div class="inspection-summary-box">
+      <p><strong>Machine/Line:</strong> {{ inspection.machineLineId }}</p>
+      <p><strong>Defect:</strong> {{ inspection.defectType }} ({{ inspection.severity }})</p>
+      <p><strong>Inspection Date:</strong> {{ inspection.inspectionDate }}</p>
+    </div>
+
+    <div *ngIf="errorMessage" class="error-box">
+      {{ errorMessage }}
+    </div>
+
+    <form (ngSubmit)="onResolve()">
+      <div class="form-group">
+        <label class="form-label" for="resolutionNote">
+          Resolution Note <span class="required">*</span>
+        </label>
+        <textarea
+          id="resolutionNote"
+          [(ngModel)]="resolutionNote"
+          name="resolutionNote"
+          rows="4"
+          class="form-control"
+          placeholder="e.g. Machine calibration completed and defective roll isolated."
+          required
+        ></textarea>
+        <small class="help-text">Provide specific details on corrective actions taken.</small>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" (click)="onClose()" [disabled]="submitting">
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="btn btn-success"
+          [disabled]="submitting || !resolutionNote.trim()"
+        >
+          <span *ngIf="submitting" class="spinner"></span>
+          {{ submitting ? 'Resolving...' : 'Confirm Resolution' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

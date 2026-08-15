@@ -1,0 +1,117 @@
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+@media (min-width: 640px) {
+  .summary-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+}
+
+.summary-card {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 16px;
+  background: white;
+  box-shadow: var(--shadow);
+}
+
+.open-card {
+  border-top: 4px solid var(--warning);
+}
+
+.resolved-card {
+  border-top: 4px solid var(--success);
+}
+
+.summary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.summary-header h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.status-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.open-dot { background-color: var(--warning); }
+.resolved-dot { background-color: var(--success); }
+
+.metrics-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.metric-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+}
+
+.total-row {
+  border-top: 2px dashed var(--border-color);
+  padding-top: 10px;
+  margin-top: 6px;
+  font-weight: 700;
+}
+
+.metric-value {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.critical-text { color: var(--danger); }
+.major-text { color: var(--warning); }
+.minor-text { color: var(--info); }
+.total-text { color: var(--primary); font-size: 20px; }
+
+.mt-3 { margin-top: 16px; }
+
+.quick-actions {
+  margin-top: 24px;
+}
+
+.large-btn {
+  font-size: 16px;
+  padding: 14px;
+  min-height: 52px;
+}
+
+.loading-state {
+  text-align: center;
+  padding: 30px;
+  color: var(--text-muted);
+}
+
+.spinner.dark {
+  border-color: rgba(0, 0, 0, 0.1);
+  border-top-color: var(--primary);
+  margin: 0 auto 12px;
+}
+
+.alert-error {
+  background-color: var(--danger-bg);
+  color: var(--danger);
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 12px;
+  font-size: 14px;
+}

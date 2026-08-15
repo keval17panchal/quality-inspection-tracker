@@ -1,0 +1,102 @@
+<div class="sap-container">
+  <div class="card">
+    <div class="card-title">
+      <span>🔄 SAP ERP Webhook Simulator</span>
+      <span class="badge badge-resolved">POST /api/sap-webhook</span>
+    </div>
+
+    <p class="description-text">
+      Simulate digital inspection creation events sent automatically from SAP ERP / MES shop floor systems.
+      Inspections created via SAP are automatically assigned status <strong>Open</strong> and marked with source <code>SAP_ERP</code>.
+    </p>
+
+    <div *ngIf="successMessage" class="alert-success">
+      ✅ {{ successMessage }}
+    </div>
+
+    <div *ngIf="errorMessage" class="alert-danger">
+      ❌ {{ errorMessage }}
+    </div>
+
+    <form [formGroup]="sapForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label class="form-label" for="inspectionDate">
+          Inspection Date <span class="required">*</span>
+        </label>
+        <input
+          type="date"
+          id="inspectionDate"
+          formControlName="inspectionDate"
+          class="form-control"
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="machineLineId">
+          SAP Machine / Line ID <span class="required">*</span>
+        </label>
+        <input
+          type="text"
+          id="machineLineId"
+          formControlName="machineLineId"
+          placeholder="e.g. SAP-LINE-09, WEAVE-M4"
+          class="form-control"
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="defectType">
+          Defect Type <span class="required">*</span>
+        </label>
+        <select id="defectType" formControlName="defectType" class="form-control">
+          <option value="">-- Select Defect Type --</option>
+          <option value="Weave Defect">Weave Defect</option>
+          <option value="Shade Variation">Shade Variation</option>
+          <option value="Hole/Tear">Hole/Tear</option>
+          <option value="Count Deviation">Count Deviation</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="severity">
+          Severity <span class="required">*</span>
+        </label>
+        <select id="severity" formControlName="severity" class="form-control">
+          <option value="">-- Select Severity --</option>
+          <option value="Critical">Critical</option>
+          <option value="Major">Major</option>
+          <option value="Minor">Minor</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="source">
+          SAP Source / System ID
+        </label>
+        <input
+          type="text"
+          id="source"
+          formControlName="source"
+          class="form-control"
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="remarks">SAP Remarks</label>
+        <textarea
+          id="remarks"
+          formControlName="remarks"
+          rows="3"
+          class="form-control"
+          placeholder="e.g. Automated sensor alert from SAP Quality Module."
+        ></textarea>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-full large-btn" [disabled]="submitting">
+        <span *ngIf="submitting" class="spinner"></span>
+        {{ submitting ? 'Sending Webhook...' : '🚀 Trigger SAP Webhook' }}
+      </button>
+    </form>
+  </div>
+</div>

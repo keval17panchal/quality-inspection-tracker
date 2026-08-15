@@ -1,0 +1,40 @@
+.sap-container {
+  max-width: 600px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.description-text {
+  font-size: 14px;
+  color: var(--secondary);
+  margin-bottom: 20px;
+  line-height: 1.5;
+  background: #f8fafc;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+}
+
+.alert-success {
+  background-color: var(--success-bg);
+  color: var(--success);
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+
+.alert-danger {
+  background-color: var(--danger-bg);
+  color: var(--danger);
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+
+.large-btn {
+  font-size: 16px;
+  min-height: 50px;
+  margin-top: 10px;
+}

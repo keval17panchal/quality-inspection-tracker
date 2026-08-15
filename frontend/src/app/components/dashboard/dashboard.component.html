@@ -1,0 +1,104 @@
+<div class="dashboard-container">
+  <div class="card">
+    <div class="card-title">
+      <span>📊 Quality Inspection Summary</span>
+      <button class="btn btn-sm btn-outline" (click)="loadSummary()" [disabled]="loading">
+        <span *ngIf="loading" class="spinner"></span>
+        🔄 Refresh
+      </button>
+    </div>
+
+    <div *ngIf="error" class="alert-error">
+      {{ error }}
+    </div>
+
+    <div *ngIf="loading && !summary" class="loading-state">
+      <div class="spinner dark"></div>
+      <p>Loading inspection summary...</p>
+    </div>
+
+    <div *ngIf="summary" class="summary-grid">
+      <!-- OPEN SUMMARY CARD -->
+      <div class="summary-card open-card">
+        <div class="summary-header">
+          <span class="status-indicator open-dot"></span>
+          <h3>OPEN INSPECTIONS</h3>
+          <span class="badge badge-open">Open</span>
+        </div>
+        
+        <div class="metrics-list">
+          <div class="metric-row">
+            <span class="metric-label">
+              <span class="badge badge-critical">Critical</span>
+            </span>
+            <span class="metric-value critical-text">{{ summary.open.critical }}</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">
+              <span class="badge badge-major">Major</span>
+            </span>
+            <span class="metric-value major-text">{{ summary.open.major }}</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">
+              <span class="badge badge-minor">Minor</span>
+            </span>
+            <span class="metric-value minor-text">{{ summary.open.minor }}</span>
+          </div>
+          <div class="metric-row total-row">
+            <span class="metric-label">Total Open</span>
+            <span class="metric-value total-text">{{ summary.open.total }}</span>
+          </div>
+        </div>
+
+        <a routerLink="/inspections" [queryParams]="{status: 'OPEN'}" class="btn btn-primary btn-full mt-3">
+          View Open Inspections
+        </a>
+      </div>
+
+      <!-- RESOLVED SUMMARY CARD -->
+      <div class="summary-card resolved-card">
+        <div class="summary-header">
+          <span class="status-indicator resolved-dot"></span>
+          <h3>RESOLVED INSPECTIONS</h3>
+          <span class="badge badge-resolved">Resolved</span>
+        </div>
+
+        <div class="metrics-list">
+          <div class="metric-row">
+            <span class="metric-label">
+              <span class="badge badge-critical">Critical</span>
+            </span>
+            <span class="metric-value critical-text">{{ summary.resolved.critical }}</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">
+              <span class="badge badge-major">Major</span>
+            </span>
+            <span class="metric-value major-text">{{ summary.resolved.major }}</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">
+              <span class="badge badge-minor">Minor</span>
+            </span>
+            <span class="metric-value minor-text">{{ summary.resolved.minor }}</span>
+          </div>
+          <div class="metric-row total-row">
+            <span class="metric-label">Total Resolved</span>
+            <span class="metric-value total-text">{{ summary.resolved.total }}</span>
+          </div>
+        </div>
+
+        <a routerLink="/inspections" [queryParams]="{status: 'RESOLVED'}" class="btn btn-secondary btn-full mt-3">
+          View Resolved Inspections
+        </a>
+      </div>
+    </div>
+
+    <div class="quick-actions">
+      <a routerLink="/create" class="btn btn-success btn-full large-btn">
+        ➕ Record New Quality Inspection
+      </a>
+    </div>
+  </div>
+</div>

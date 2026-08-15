@@ -1,0 +1,142 @@
+<div class="create-container">
+  <div class="card">
+    <div class="card-title">
+      <span>📝 Record New Inspection</span>
+      <span class="badge badge-open">Auto Status: Open</span>
+    </div>
+
+    <div *ngIf="successMessage" class="toast-alert toast-success-alert">
+      ✅ {{ successMessage }}
+    </div>
+
+    <div *ngIf="errorMessage" class="toast-alert toast-error-alert">
+      ❌ {{ errorMessage }}
+    </div>
+
+    <form [formGroup]="inspectionForm" (ngSubmit)="onSubmit()">
+      <!-- Date Field -->
+      <div class="form-group">
+        <label class="form-label" for="inspectionDate">
+          Inspection Date <span class="required">*</span>
+        </label>
+        <input
+          type="date"
+          id="inspectionDate"
+          formControlName="inspectionDate"
+          class="form-control"
+          [class.is-invalid]="isFieldInvalid('inspectionDate')"
+        />
+        <div *ngIf="isFieldInvalid('inspectionDate')" class="invalid-feedback">
+          Inspection date is required.
+        </div>
+      </div>
+
+      <!-- Machine / Line ID Field -->
+      <div class="form-group">
+        <label class="form-label" for="machineLineId">
+          Machine / Line ID <span class="required">*</span>
+        </label>
+        <input
+          type="text"
+          id="machineLineId"
+          formControlName="machineLineId"
+          placeholder="e.g. LINE-01, M-104"
+          class="form-control"
+          [class.is-invalid]="isFieldInvalid('machineLineId')"
+        />
+        <div *ngIf="isFieldInvalid('machineLineId')" class="invalid-feedback">
+          Machine / Line ID is required.
+        </div>
+        
+        <!-- Quick Chips for common Machine/Lines -->
+        <div class="quick-chips">
+          <span class="chip-label">Quick select:</span>
+          <button type="button" class="chip" (click)="setMachine('LINE-01')">LINE-01</button>
+          <button type="button" class="chip" (click)="setMachine('LINE-02')">LINE-02</button>
+          <button type="button" class="chip" (click)="setMachine('M-101')">M-101</button>
+          <button type="button" class="chip" (click)="setMachine('M-102')">M-102</button>
+        </div>
+      </div>
+
+      <!-- Defect Type Field -->
+      <div class="form-group">
+        <label class="form-label" for="defectType">
+          Defect Type <span class="required">*</span>
+        </label>
+        <select
+          id="defectType"
+          formControlName="defectType"
+          class="form-control"
+          [class.is-invalid]="isFieldInvalid('defectType')"
+        >
+          <option value="">-- Select Defect Type --</option>
+          <option *ngFor="let defect of defectTypes" [value]="defect">
+            {{ defect }}
+          </option>
+        </select>
+        <div *ngIf="isFieldInvalid('defectType')" class="invalid-feedback">
+          Defect type is required.
+        </div>
+      </div>
+
+      <!-- Severity Field -->
+      <div class="form-group">
+        <label class="form-label">
+          Severity Level <span class="required">*</span>
+        </label>
+        <div class="severity-buttons">
+          <button
+            type="button"
+            class="severity-btn"
+            [class.selected-critical]="inspectionForm.get('severity')?.value === 'Critical'"
+            (click)="setSeverity('Critical')"
+          >
+            🔴 Critical
+          </button>
+          <button
+            type="button"
+            class="severity-btn"
+            [class.selected-major]="inspectionForm.get('severity')?.value === 'Major'"
+            (click)="setSeverity('Major')"
+          >
+            🟠 Major
+          </button>
+          <button
+            type="button"
+            class="severity-btn"
+            [class.selected-minor]="inspectionForm.get('severity')?.value === 'Minor'"
+            (click)="setSeverity('Minor')"
+          >
+            🔵 Minor
+          </button>
+        </div>
+        <div *ngIf="isFieldInvalid('severity')" class="invalid-feedback">
+          Severity is required.
+        </div>
+      </div>
+
+      <!-- Remarks Field -->
+      <div class="form-group">
+        <label class="form-label" for="remarks">Remarks / Inspection Notes</label>
+        <textarea
+          id="remarks"
+          formControlName="remarks"
+          rows="3"
+          placeholder="e.g. Defect observed on warp roll #4. Loom tension irregular."
+          class="form-control"
+        ></textarea>
+      </div>
+
+      <!-- Submit Buttons -->
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary btn-full large-btn" [disabled]="submitting">
+          <span *ngIf="submitting" class="spinner"></span>
+          {{ submitting ? 'Saving Inspection...' : '💾 Save Quality Inspection' }}
+        </button>
+        <button type="button" class="btn btn-secondary btn-full mt-2" (click)="resetForm()">
+          Reset Form
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

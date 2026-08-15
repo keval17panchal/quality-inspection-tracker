@@ -1,0 +1,474 @@
+<div class="list-container">
+  <div class="card">
+    <div class="card-title">
+      <span>🔍 View Quality Inspections</span>
+      <button class="btn btn-sm btn-outline" (click)="toggleFilters()">
+        {{ showFilters ? 'Hide Filters ▲' : 'Filter Inspections ⚙️' }}
+      </button>
+    </div>
+
+    <!-- Filter Panel -->
+    <div class="filter-panel" *ngIf="showFilters">
+      <div class="filter-grid">
+        <!-- Severity Filter -->
+        <div class="form-group">
+          <label class="form-label" for="filterSeverity">Severity</label>
+          <select
+            id="filterSeverity"
+            [(ngModel)]="filters.severity"
+            (change)="applyFilters()"
+            class="form-control"
+          >
+            <option value="ALL">All Severities</option>
+            <option value="CRITICAL">Critical</option>
+            <option value="MAJOR">Major</option>
+            <option value="MINOR">Minor</option>
+          </select>
+        </div>
+
+        <!-- Status Filter -->
+        <div class="form-group">
+          <label class="form-label" for="filterStatus">Status</label>
+          <select
+            id="filterStatus"
+            [(ngModel)]="filters.status"
+            (change)="applyFilters()"
+            class="form-control"
+          >
+            <option value="ALL">All Statuses</option>
+            <option value="OPEN">Open</option>
+            <option value="RESOLVED">Resolved</option>
+          </select>
+        </div>
+
+        <!-- From Date -->
+        <div class="form-group">
+          <label class="form-label" for="filterFromDate">From Date</label>
+          <input
+            type="date"
+            id="filterFromDate"
+            [(ngModel)]="filters.fromDate"
+            (change)="applyFilters()"
+            class="form-control"
+          />
+        </div>
+
+        <!-- To Date -->
+        <div class="form-group">
+          <label class="form-label" for="filterToDate">To Date</label>
+          <input
+            type="date"
+            id="filterToDate"
+            [(ngModel)]="filters.toDate"
+            (change)="applyFilters()"
+            class="form-control"
+          />
+        </div>
+
+        <!-- Machine / Line ID -->
+        <div class="form-group">
+          <label class="form-label" for="filterMachine">Machine / Line ID</label>
+          <input
+            type="text"
+            id="filterMachine"
+            [(ngModel)]="filters.machineLineId"
+            (keyup.enter)="applyFilters()"
+            placeholder="Search Machine ID..."
+            class="form-control"
+          />
+        </div>
+
+        <!-- Sorting Option -->
+        <div class="form-group">
+          <label class="form-label" for="sortBy">Sort By</label>
+          <div class="sort-controls">
+            <select
+              id="sortBy"
+              [(ngModel)]="filters.sortBy"
+              (change)="applyFilters()"
+              class="form-control"
+            >
+              <option value="createdAt">Date Created</option>
+              <option value="inspectionDate">Inspection Date</option>
+              <option value="machineLineId">Machine / Line ID</option>
+              <option value="severity">Severity</option>
+              <option value="status">Status</option>
+            </select>
+            <button
+              type="button"
+              class="btn btn-secondary btn-sm"
+              (click)="toggleSortDir()"
+              title="Toggle Direction"
+            >
+              {{ filters.sortDir === 'asc' ? '⬆️ ASC' : '⬇️ DESC' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-actions">
+        <button class="btn btn-sm btn-primary" (click)="applyFilters()">
+          🔍 Apply Filters
+        </button>
+        <button class="btn btn-sm btn-secondary" (click)="resetFilters()">
+          🧹 Clear Filters
+        </button>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div *ngIf="toastMessage" class="toast-bar">
+      ✅ {{ toastMessage }}
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-box">
+      <div class="spinner dark"></div>
+      <p>Loading inspections from database...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="errorMessage" class="alert-error">
+      {{ errorMessage }}
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && pageData?.content?.length === 0" class="empty-box">
+      <p class="empty-icon">📂</p>
+      <h4>No inspections found</h4>
+      <p>Try adjusting your search or filter criteria.</p>
+    </div>
+
+    <!-- Content Area -->
+    <div *ngIf="!loading && pageData && pageData.content.length > 0">
+      
+      <!-- MOBILE CARD VIEW (< 768px) -->
+      <div class="mobile-card-list">
+        <div
+          *ngFor="let inspection of pageData.content"
+          class="inspection-card"
+          [class.border-critical]="inspection.severity === 'Critical' || inspection.severity === 'CRITICAL'"
+          [class.border-major]="inspection.severity === 'Major' || inspection.severity === 'MAJOR'"
+          [class.border-minor]="inspection.severity === 'Minor' || inspection.severity === 'MINOR'"
+        >
+          <div class="card-header-row">
+            <span class="card-id">#{{ inspection.id }} &bull; {{ inspection.machineLineId }}</span>
+            <span
+              class="badge"
+              [class.badge-critical]="inspection.severity === 'Critical' || inspection.severity === 'CRITICAL'"
+              [class.badge-major]="inspection.severity === 'Major' || inspection.severity === 'MAJOR'"
+              [class.badge-minor]="inspection.severity === 'Minor' || inspection.severity === 'MINOR'"
+            >
+              {{ inspection.severity }}
+            </span>
+          </div>
+
+          <div class="card-body-row">
+            <p class="defect-title"><strong>Defect:</strong> {{ inspection.defectType }}</p>
+            <p class="meta-info"><strong>Date:</strong> {{ inspection.inspectionDate }}</p>
+            <p *ngIf="inspection.remarks" class="remarks-text">
+              <strong>Remarks:</strong> {{ inspection.remarks }}
+            </p>
+          </div>
+
+          <div class="card-status-section">
+            <div class="status-badge-row">
+              <span
+                class="badge"
+                [class.badge-open]="inspection.status === 'Open' || inspection.status === 'OPEN'"
+                [class.badge-resolved]="inspection.status === 'Resolved' || inspection.status === 'RESOLVED'"
+              >
+                {{ inspection.status }}
+              </span>
+              <span *ngIf="inspection.source" class="source-tag">Source: {{ inspection.source }}</span>
+            </div>
+
+            <!-- Resolved Information -->
+            <div *ngIf="inspection.status === 'Resolved' || inspection.status === 'RESOLVED'" class="resolved-info">
+              <p><strong>Resolution Note:</strong> «{{ inspection.resolutionNote }}»</p>
+              <p *ngIf="inspection.resolvedAt" class="resolved-date">
+                Resolved at: {{ inspection.resolvedAt | date:'medium' }}
+              </p>
+            </div>
+
+            <!-- Action Buttons for Mobile -->
+            <div class="action-row mobile-actions">
+              <button
+                *ngIf="(inspection.status === 'Open' || inspection.status === 'OPEN') && authService.canResolve()"
+                class="btn btn-sm btn-success btn-full"
+                (click)="openResolveModal(inspection)"
+              >
+                ✅ Resolve Defect
+              </button>
+              <div class="edit-delete-row" *ngIf="authService.canEdit() || authService.canDelete()">
+                <button
+                  *ngIf="authService.canEdit()"
+                  class="btn btn-sm btn-outline btn-full"
+                  (click)="openEditModal(inspection)"
+                >
+                  ✏️ Edit
+                </button>
+                <button
+                  *ngIf="authService.canDelete()"
+                  class="btn btn-sm btn-danger btn-full"
+                  (click)="openDeleteModal(inspection)"
+                >
+                  🗑️ Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DESKTOP TABLE VIEW (>= 768px) -->
+      <div class="desktop-table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Date</th>
+              <th>Machine / Line</th>
+              <th>Defect Type</th>
+              <th>Severity</th>
+              <th>Status</th>
+              <th>Remarks / Resolution</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let inspection of pageData.content">
+              <td><strong>#{{ inspection.id }}</strong></td>
+              <td>{{ inspection.inspectionDate }}</td>
+              <td><span class="machine-tag">{{ inspection.machineLineId }}</span></td>
+              <td>{{ inspection.defectType }}</td>
+              <td>
+                <span
+                  class="badge"
+                  [class.badge-critical]="inspection.severity === 'Critical' || inspection.severity === 'CRITICAL'"
+                  [class.badge-major]="inspection.severity === 'Major' || inspection.severity === 'MAJOR'"
+                  [class.badge-minor]="inspection.severity === 'Minor' || inspection.severity === 'MINOR'"
+                >
+                  {{ inspection.severity }}
+                </span>
+              </td>
+              <td>
+                <span
+                  class="badge"
+                  [class.badge-open]="inspection.status === 'Open' || inspection.status === 'OPEN'"
+                  [class.badge-resolved]="inspection.status === 'Resolved' || inspection.status === 'RESOLVED'"
+                >
+                  {{ inspection.status }}
+                </span>
+              </td>
+              <td class="remarks-col">
+                <p *ngIf="inspection.remarks"><em>{{ inspection.remarks }}</em></p>
+                <div *ngIf="inspection.status === 'Resolved' || inspection.status === 'RESOLVED'" class="resolved-note-box">
+                  <strong>Resolution Note:</strong> «{{ inspection.resolutionNote }}»
+                  <small *ngIf="inspection.resolvedAt" class="d-block text-muted">
+                    Resolved: {{ inspection.resolvedAt | date:'short' }}
+                  </small>
+                </div>
+              </td>
+              <td>
+                <div class="action-buttons-cell">
+                  <button
+                    *ngIf="(inspection.status === 'Open' || inspection.status === 'OPEN') && authService.canResolve()"
+                    class="btn btn-sm btn-success"
+                    (click)="openResolveModal(inspection)"
+                    title="Resolve Defect"
+                  >
+                    Resolve
+                  </button>
+                  <button
+                    *ngIf="authService.canEdit()"
+                    class="btn btn-sm btn-outline"
+                    (click)="openEditModal(inspection)"
+                    title="Edit Inspection"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    *ngIf="authService.canDelete()"
+                    class="btn btn-sm btn-danger"
+                    (click)="openDeleteModal(inspection)"
+                    title="Delete Inspection"
+                  >
+                    Delete
+                  </button>
+                  <span *ngIf="(inspection.status === 'Resolved' || inspection.status === 'RESOLVED') && !authService.canEdit() && !authService.canDelete()" class="text-muted text-sm">
+                    Completed
+                  </span>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination Bar -->
+      <div class="pagination-wrapper">
+        <div class="pagination-info">
+          Showing page {{ (pageData.pageNumber || 0) + 1 }} of {{ pageData.totalPages || 1 }} 
+          ({{ pageData.totalElements }} total inspections)
+        </div>
+
+        <div class="pagination-controls">
+          <button
+            class="btn btn-sm btn-secondary"
+            [disabled]="pageData.pageNumber === 0"
+            (click)="goToPage(pageData.pageNumber - 1)"
+          >
+            ◀️ Prev
+          </button>
+
+          <button
+            *ngFor="let p of getPagesArray()"
+            class="btn btn-sm page-num-btn"
+            [class.btn-primary]="p === pageData.pageNumber"
+            [class.btn-secondary]="p !== pageData.pageNumber"
+            (click)="goToPage(p)"
+          >
+            {{ p + 1 }}
+          </button>
+
+          <button
+            class="btn btn-sm btn-secondary"
+            [disabled]="pageData.last"
+            (click)="goToPage(pageData.pageNumber + 1)"
+          >
+            Next ▶️
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Resolve Modal Component -->
+<app-resolve-modal
+  *ngIf="selectedInspectionForResolve"
+  [inspection]="selectedInspectionForResolve"
+  (close)="closeResolveModal()"
+  (resolved)="onInspectionResolved($event)"
+></app-resolve-modal>
+
+<!-- Edit Inspection Modal -->
+<div *ngIf="showEditModal && editingInspection" class="modal-backdrop" (click)="closeEditModal()">
+  <div class="modal-dialog" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3 class="modal-title">Edit Inspection #{{ editingInspection.id }}</h3>
+      <button class="modal-close" (click)="closeEditModal()">&times;</button>
+    </div>
+
+    <form (ngSubmit)="submitEdit()">
+      <div class="modal-body">
+        <div *ngIf="editError" class="alert-error mb-3">
+          {{ editError }}
+        </div>
+
+        <div class="form-group mb-3">
+          <label class="form-label" for="editDate">Inspection Date <span class="text-danger">*</span></label>
+          <input
+            type="date"
+            id="editDate"
+            name="inspectionDate"
+            [(ngModel)]="editModel.inspectionDate"
+            class="form-control"
+            required
+          />
+        </div>
+
+        <div class="form-group mb-3">
+          <label class="form-label" for="editMachine">Machine / Line ID <span class="text-danger">*</span></label>
+          <input
+            type="text"
+            id="editMachine"
+            name="machineLineId"
+            [(ngModel)]="editModel.machineLineId"
+            class="form-control"
+            placeholder="e.g. LOOM-01"
+            required
+          />
+        </div>
+
+        <div class="form-group mb-3">
+          <label class="form-label" for="editDefect">Defect Type <span class="text-danger">*</span></label>
+          <select
+            id="editDefect"
+            name="defectType"
+            [(ngModel)]="editModel.defectType"
+            class="form-control"
+            required
+          >
+            <option value="Weave Defect">Weave Defect</option>
+            <option value="Shade Variation">Shade Variation</option>
+            <option value="Hole/Tear">Hole/Tear</option>
+            <option value="Count Deviation">Count Deviation</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <div class="form-group mb-3">
+          <label class="form-label" for="editSeverity">Severity <span class="text-danger">*</span></label>
+          <select
+            id="editSeverity"
+            name="severity"
+            [(ngModel)]="editModel.severity"
+            class="form-control"
+            required
+          >
+            <option value="Critical">Critical</option>
+            <option value="Major">Major</option>
+            <option value="Minor">Minor</option>
+          </select>
+        </div>
+
+        <div class="form-group mb-3">
+          <label class="form-label" for="editRemarks">Remarks</label>
+          <textarea
+            id="editRemarks"
+            name="remarks"
+            [(ngModel)]="editModel.remarks"
+            rows="3"
+            class="form-control"
+            placeholder="Observations, defect location, batch number..."
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeEditModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary" [disabled]="updating">
+          <span *ngIf="updating" class="spinner-sm"></span>
+          Save Changes
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div *ngIf="showDeleteModal && deletingInspection" class="modal-backdrop" (click)="closeDeleteModal()">
+  <div class="modal-dialog modal-dialog-sm" (click)="$event.stopPropagation()">
+    <div class="modal-header modal-header-danger">
+      <h3 class="modal-title">Delete Inspection</h3>
+      <button class="modal-close" (click)="closeDeleteModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p>Are you sure you want to delete Inspection <strong>#{{ deletingInspection.id }}</strong> ({{ deletingInspection.machineLineId }} - {{ deletingInspection.defectType }})?</p>
+      <p class="text-danger-sm">This action cannot be undone.</p>
+      <div *ngIf="deleteError" class="alert-error mt-2">
+        {{ deleteError }}
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="closeDeleteModal()">Cancel</button>
+      <button type="button" class="btn btn-danger" [disabled]="deleting" (click)="confirmDelete()">
+        <span *ngIf="deleting" class="spinner-sm"></span>
+        Delete
+      </button>
+    </div>
+  </div>
+</div>
